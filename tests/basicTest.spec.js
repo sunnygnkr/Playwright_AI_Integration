@@ -25,9 +25,9 @@ test('First test', async ({browser})=>
   
 })
 
-test.only('Dropdowns and Radio buttons', async ({browser})=> 
+test('Dropdowns and Radio buttons', async ({browser})=> 
 {
-const context = await browser.newContext();
+  const context = await browser.newContext();
   const page = await context.newPage();
   const username = page.locator('#username');
   const signin = page.locator('#signInBtn');
@@ -36,8 +36,43 @@ const context = await browser.newContext();
   await dropdwon.selectOption('consult');
   await page.locator('.radiotextsty').nth(1).click();
   await page.locator('#okayBtn').click();
+  // Assertion:
+  await expect(page.locator('.radiotextsty').nth(1)).toBeChecked();
+})
+
+test('Locator attribute assertion', async ({browser})=> 
+{
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const documentLink = page.locator('[href*="documents-request"]');
+  await page.goto('https://rahulshettyacademy.com/loginpagePractise/');
+  await expect(documentLink).toHaveAttribute('class', 'blinkingText');
+})
+
+test.only("Aserting on child windows", async({browser})=>{
+
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const username = page.locator('#username');
+  await page.goto('https://rahulshettyacademy.com/loginpagePractise/');
+  const documentLink = page.locator('[href*="documents-request"]');
+  
+  //race condition
+  const [newPage] = await Promise.all([
+    context.waitForEvent('page'),
+     documentLink.click(),
+  ])
+  
+  const text = await newPage.locator('.red').textContent();
+  console.log(text);
+  const arrayText = text.split('@');
+  const domain = arrayText[1].split(' ')[0];
+  console.log(domain);
+  await username.type(domain);
   await page.pause();
 })
+
+
 
 
 // test('Without browser context', async ({page})=> 
